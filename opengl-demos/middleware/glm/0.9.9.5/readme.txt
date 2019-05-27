@@ -1,0 +1,3 @@
+2019-05-27...
+
+- followed readme-glfw.txt
