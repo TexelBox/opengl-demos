@@ -34,9 +34,16 @@ main notes for this application:
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 
 #include <iostream>
+#include <string>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
+glm::mat4 camera(float Translate, glm::vec2 const &Rotate);
+void queryGLVersion();
+void errorCallback(int error, char const *description);
+void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
+
+
 
 // settings
 unsigned int const SCR_WIDTH = 800;
@@ -45,7 +52,14 @@ unsigned int const SCR_HEIGHT = 600;
 int main(int argc, char const *argv[]) {
 	// glfw: initialize and configure
 	// ------------------------------
-	if (!glfwInit()) return -1;
+	if (!glfwInit()) {
+		std::cout << "ERROR: GLFW failed to initialize, TERMINATING" << std::endl;
+		return -1;
+	}
+
+	//Set the custom error callback function
+	//Errors will be printed to the console
+	glfwSetErrorCallback(errorCallback);
 
 	// TARGET = OpenGL 3.3 CORE context
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -64,7 +78,16 @@ int main(int argc, char const *argv[]) {
 		glfwTerminate();
 		return -1;
 	}
+
+	//So that we can access this object on key callbacks...
+	//glfwSetWindowUserPointer(window, this);
+
+	//Set the custom function that tracks key presses
+	glfwSetKeyCallback(window, keyCallback);
+
+	//Bring the new window to the foreground (not strictly necessary but convenient)
 	glfwMakeContextCurrent(window);
+
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	// glad: load all OpenGL function pointers
@@ -75,7 +98,19 @@ int main(int argc, char const *argv[]) {
 	}
 
 
+	//Intialize GLAD (finds appropriate OpenGL configuration for your system)
+	/*
+	if (!gladLoadGL()) {
+		std::cout << "GLAD init failed" << std::endl;
+		return -1;
+	}
+	*/
+
+
 	std::cout << "OpenGL target version: " << GLVersion.major << "." << GLVersion.minor << "+" << std::endl;
+
+	//Query and print out information about our OpenGL environment
+	queryGLVersion();
 
 
 
@@ -125,4 +160,30 @@ glm::mat4 camera(float Translate, glm::vec2 const &Rotate) {
 	View = glm::rotate(View, Rotate.x, glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 Model = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));
 	return Projection * View * Model;
+}
+
+
+void queryGLVersion() {
+	// query opengl version and renderer information
+	std::string version = reinterpret_cast<char const *>(glGetString(GL_VERSION));
+	std::string glslver = reinterpret_cast<char const *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+	std::string renderer = reinterpret_cast<char const *>(glGetString(GL_RENDERER));
+
+	std::cout << "OpenGL [ " << version << " ] "
+		<< "with GLSL [ " << glslver << " ] "
+		<< "on renderer [ " << renderer << " ]" << std::endl;
+}
+
+
+
+void errorCallback(int error, char const *description) {
+	std::cout << "GLFW ERROR " << error << ":" << std::endl;
+	std::cout << description << std::endl;
+}
+
+void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+	//Key codes are often prefixed with GLFW_KEY_ and can be found on the GLFW website
+	if (GLFW_KEY_ESCAPE == key && GLFW_PRESS == action) {
+		glfwSetWindowShouldClose(window, GL_TRUE);
+	}
 }
