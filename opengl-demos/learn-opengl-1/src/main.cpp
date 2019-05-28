@@ -37,7 +37,7 @@ main notes for this application:
 #include <string>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-void processInput(GLFWwindow *window);
+//void processInput(GLFWwindow *window);
 glm::mat4 camera(float Translate, glm::vec2 const &Rotate);
 void queryGLVersion();
 void errorCallback(int error, char const *description);
@@ -46,8 +46,8 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 
 
 // settings
-unsigned int const SCR_WIDTH = 800;
-unsigned int const SCR_HEIGHT = 600;
+//unsigned int const SCR_WIDTH = 800;
+//unsigned int const SCR_HEIGHT = 600;
 
 int main(int argc, char const *argv[]) {
 	// glfw: initialize and configure
@@ -72,12 +72,19 @@ int main(int argc, char const *argv[]) {
 
 	// glfw window creation
 	// --------------------
-	GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+
+	GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+	GLFWvidmode const *mode = glfwGetVideoMode(monitor);
+
+	GLFWwindow *window = glfwCreateWindow(mode->width, mode->height, "LearnOpenGL", monitor, NULL); // creates the window in full-screen on the primary montitor (w/ proper DPI)
 	if (!window) {
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
 		return -1;
 	}
+
+	//glfwSetWindowPos(window, 1, 31); // set window top-left corner to be at top-left corner of screen
+
 
 	//So that we can access this object on key callbacks...
 	//glfwSetWindowUserPointer(window, this);
@@ -119,7 +126,7 @@ int main(int argc, char const *argv[]) {
 	while (!glfwWindowShouldClose(window)) {
 		// input
 		// -----
-		processInput(window);
+		//processInput(window);
 
 		// render
 		// ------
@@ -140,9 +147,11 @@ int main(int argc, char const *argv[]) {
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
+/*
 void processInput(GLFWwindow *window) {
 	if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(window, true);
 }
+*/
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
@@ -187,3 +196,23 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
 }
+
+
+
+
+
+
+
+
+
+/*
+NOTES:
+
+MODEL (object's local coord-space -> world space) 
+VIEW (world space -> camera space)
+PROJECTION (camera space -> screen space)
+
+FRUSTUM CULLING - determine what objects are at least partially visible within frustum and send ONLY these to the GPU, so that unnecessary vertex processing is saved.
+
+
+*/
