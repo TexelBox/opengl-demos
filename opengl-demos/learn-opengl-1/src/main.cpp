@@ -42,6 +42,10 @@ glm::mat4 camera(float Translate, glm::vec2 const &Rotate);
 void queryGLVersion();
 void errorCallback(int error, char const *description);
 void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
+int helloTriangleMain();
+int helloTriangleEx1Main();
+int helloTriangleEx2Main();
+int helloTriangleEx3Main();
 
 
 
@@ -67,11 +71,87 @@ char const *fragmentShaderSource = "#version 330 core\n"
     "}\n\0";
 
 
+char const *fragmentShaderSourceEx3 = "#version 330 core\n"
+    "out vec4 FragColor;\n" // frag shader only needs 1 output variable which we declare here
+    "void main()\n"
+    "{\n"
+    "   FragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);\n"
+    "}\n\0";
 
 
 
 
 int main(int argc, char const *argv[]) {
+	return helloTriangleMain();
+	//return helloTriangleEx1Main();
+	//return helloTriangleEx2Main();
+	//return helloTriangleEx3Main();
+}
+
+// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
+// ---------------------------------------------------------------------------------------------------------
+/*
+void processInput(GLFWwindow *window) {
+	if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(window, true);
+}
+*/
+
+// glfw: whenever the window size changed (by OS or user resize) this callback function executes
+// ---------------------------------------------------------------------------------------------
+void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
+	// make sure the viewport matches the new window dimensions; note that width and 
+	// height will be significantly larger than specified on retina displays.
+	glViewport(0, 0, width, height);
+}
+
+
+glm::mat4 camera(float Translate, glm::vec2 const &Rotate) {
+	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.f);
+	glm::mat4 View = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -Translate));
+	View = glm::rotate(View, Rotate.y, glm::vec3(-1.0f, 0.0f, 0.0f));
+	View = glm::rotate(View, Rotate.x, glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 Model = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));
+	return Projection * View * Model;
+}
+
+
+void queryGLVersion() {
+	// query opengl version and renderer information
+	std::string version = reinterpret_cast<char const *>(glGetString(GL_VERSION));
+	std::string glslver = reinterpret_cast<char const *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+	std::string renderer = reinterpret_cast<char const *>(glGetString(GL_RENDERER));
+
+	std::cout << "OpenGL [ " << version << " ] "
+		<< "with GLSL [ " << glslver << " ] "
+		<< "on renderer [ " << renderer << " ]" << std::endl;
+}
+
+
+
+void errorCallback(int error, char const *description) {
+	std::cout << "GLFW ERROR " << error << ":" << std::endl;
+	std::cout << description << std::endl;
+}
+
+void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+	//Key codes are often prefixed with GLFW_KEY_ and can be found on the GLFW website
+	if (GLFW_KEY_ESCAPE == key && GLFW_PRESS == action) {
+		glfwSetWindowShouldClose(window, GL_TRUE);
+	}
+	else if (GLFW_KEY_1 == key && GLFW_PRESS == action) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+	else if (GLFW_KEY_2 == key && GLFW_PRESS == action) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+	else if (GLFW_KEY_3 == key && GLFW_PRESS == action) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+	}
+}
+
+
+
+int helloTriangleMain() {
 	// glfw: initialize and configure
 	// ------------------------------
 	if (!glfwInit()) {
@@ -351,67 +431,696 @@ int main(int argc, char const *argv[]) {
 	return 0;
 }
 
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
-/*
-void processInput(GLFWwindow *window) {
-	if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(window, true);
-}
-*/
-
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-	// make sure the viewport matches the new window dimensions; note that width and 
-	// height will be significantly larger than specified on retina displays.
-	glViewport(0, 0, width, height);
-}
 
 
-glm::mat4 camera(float Translate, glm::vec2 const &Rotate) {
-	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.f);
-	glm::mat4 View = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -Translate));
-	View = glm::rotate(View, Rotate.y, glm::vec3(-1.0f, 0.0f, 0.0f));
-	View = glm::rotate(View, Rotate.x, glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 Model = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));
-	return Projection * View * Model;
-}
-
-
-void queryGLVersion() {
-	// query opengl version and renderer information
-	std::string version = reinterpret_cast<char const *>(glGetString(GL_VERSION));
-	std::string glslver = reinterpret_cast<char const *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
-	std::string renderer = reinterpret_cast<char const *>(glGetString(GL_RENDERER));
-
-	std::cout << "OpenGL [ " << version << " ] "
-		<< "with GLSL [ " << glslver << " ] "
-		<< "on renderer [ " << renderer << " ]" << std::endl;
-}
-
-
-
-void errorCallback(int error, char const *description) {
-	std::cout << "GLFW ERROR " << error << ":" << std::endl;
-	std::cout << description << std::endl;
-}
-
-void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
-	//Key codes are often prefixed with GLFW_KEY_ and can be found on the GLFW website
-	if (GLFW_KEY_ESCAPE == key && GLFW_PRESS == action) {
-		glfwSetWindowShouldClose(window, GL_TRUE);
+// 1. Try to draw 2 triangles next to each other using glDrawArrays by adding more vertices to your data:
+int helloTriangleEx1Main() {
+	// glfw: initialize and configure
+	// ------------------------------
+	if (!glfwInit()) {
+		std::cout << "ERROR: GLFW failed to initialize, TERMINATING" << std::endl;
+		return -1;
 	}
-	else if (GLFW_KEY_1 == key && GLFW_PRESS == action) {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	//Set the custom error callback function
+	//Errors will be printed to the console
+	glfwSetErrorCallback(errorCallback);
+
+	// TARGET = OpenGL 3.3 CORE context
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+#ifdef __APPLE__
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
+#endif
+
+	// glfw window creation
+	// --------------------
+
+	GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+	GLFWvidmode const *mode = glfwGetVideoMode(monitor);
+
+	GLFWwindow *window = glfwCreateWindow(mode->width, mode->height, "LearnOpenGL", monitor, NULL); // creates the window in full-screen on the primary montitor (w/ proper DPI)
+	if (!window) {
+		std::cout << "Failed to create GLFW window" << std::endl;
+		glfwTerminate();
+		return -1;
 	}
-	else if (GLFW_KEY_2 == key && GLFW_PRESS == action) {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	//glfwSetWindowPos(window, 1, 31); // set window top-left corner to be at top-left corner of screen
+
+
+	//So that we can access this object on key callbacks...
+	//glfwSetWindowUserPointer(window, this);
+
+	//Set the custom function that tracks key presses
+	glfwSetKeyCallback(window, keyCallback);
+
+	//Bring the new window to the foreground (not strictly necessary but convenient)
+	glfwMakeContextCurrent(window);
+
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+	// glad: load all OpenGL function pointers
+	// ---------------------------------------
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+		std::cout << "Failed to initialize GLAD" << std::endl;
+		return -1;
 	}
-	else if (GLFW_KEY_3 == key && GLFW_PRESS == action) {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+
+
+	//Intialize GLAD (finds appropriate OpenGL configuration for your system)
+	/*
+	if (!gladLoadGL()) {
+		std::cout << "GLAD init failed" << std::endl;
+		return -1;
 	}
+	*/
+
+
+	std::cout << "OpenGL target version: " << GLVersion.major << "." << GLVersion.minor << "+" << std::endl;
+
+	//Query and print out information about our OpenGL environment
+	queryGLVersion();
+
+
+
+
+
+
+	// build and compile our shader program
+	// opengl must dynamically compile the shader at RUNTIME
+    // ------------------------------------
+    // vertex shader
+    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER); // returns an ID (>0) to reference the created empty shader object of specified type (use this object to maintain the source code strings that define the shader)
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL); // here we actually attach the shader source string to the shader object. we pass 1 string and NULL specifies that each string is null-terminated.
+	// note: opengl copies the strings we pass in, so we can free our copies if we wish now
+    glCompileShader(vertexShader); // actually compile the shader for use by the GPU
+    // check for shader compile errors
+    int success;
+    char infoLog[512];
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success); // NOTE: the "iv" describes the returned parameters (vector of ints)
+    if (!success)
+    {
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
+
+    // fragment shader
+    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+    // check for shader compile errors
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
+        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
+
+    // link shader objects (into a SHADER PROGRAM that we can use for rendering)
+    int shaderProgram = glCreateProgram(); // create an empty SHADER PROGRAM OBJECT and return the ID
+    glAttachShader(shaderProgram, vertexShader); // attach both compiled shaders into the shader program
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram); // link all the attached shaders together in 1 final shader program object (makes a pipeline where outputs of previous shaders get linked to inputs of succesive shaders) - can get linking errors here if the input/output names don't match
+    // check for linking errors
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+    }
+    glDeleteShader(vertexShader); // IMPORTANT: delete the raw shader program objects once they have been successfully linked into a final shader program object - this frees memory and invalidates the name/ID
+    glDeleteShader(fragmentShader);
+
+
+
+	// set up vertex data (and buffer(s)) and configure vertex attributes
+	// ------------------------------------------------------------------
+	// add a new set of vertices to form a second triangle (a total of 6 vertices); the vertex attribute configuration remains the same (still one 3-float position vector per vertex)
+	float vertices[] = {
+		// first triangle
+		-0.9f, -0.5f, 0.0f,  // left 
+		-0.0f, -0.5f, 0.0f,  // right
+		-0.45f, 0.5f, 0.0f,  // top 
+		// second triangle
+		 0.0f, -0.5f, 0.0f,  // left
+		 0.9f, -0.5f, 0.0f,  // right
+		 0.45f, 0.5f, 0.0f   // top 
+	};
+    
+	unsigned int VBO, VAO;
+
+    glGenVertexArrays(1, &VAO); // generate 1 VAO and return the ID in VAO
+    glGenBuffers(1, &VBO); // generate 1 buffer object name (unique ID?), use glDeleteBuffers() to return ID to pool
+	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+    glBindVertexArray(VAO); // tell OpenGL to use this VAO for future storage of VBO, EBO, glVertexAttribPointer(), glEnableVertexAttribArray() calls - so we only have 1 VAO bound at a time for use
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO); // the VBO ID (buffer object name) isn't associated with an actual buffer object (VBO) until bound here
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // copies previously defined vertex data into buffer's memory
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // each attrib. takes its data from memory managed by a VBO (in particular the VBO currently bound to GL_ARRAY_BUFFER) when calling this fucntion. So now vertex attribute 0 is associated with our VBO
+    glEnableVertexAttribArray(0); // enable vertex attribute of index=0 (disabled by default)
+
+	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+    glBindBuffer(GL_ARRAY_BUFFER, 0); // we use 0 to unbind the VBO from this target 
+
+	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
+	// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
+    glBindVertexArray(0);
+
+
+	while (!glfwWindowShouldClose(window)) {
+
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		glUseProgram(shaderProgram); // here we specify OpenGL to use this specific shader program for future SHADER/RENDERING CALLS
+		// seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+		glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+		// set the count to 6 since we're drawing 6 vertices now (2 triangles); not 3!
+		glDrawArrays(GL_TRIANGLES, 0, 6); // this function draws primitives using the currently active shader, current attrb config and VBO data (bound within current VAO)
+		// glBindVertexArray(0); // no need to unbind it every time
+		
+		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+		// -------------------------------------------------------------------------------
+		glfwSwapBuffers(window); // swap the front and back buffers so the stuff we rendered to the back in this frame will get displayed in the front
+		glfwPollEvents();
+	}
+
+	// optional: de-allocate all resources once they've outlived their purpose:
+	// ------------------------------------------------------------------------
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+
+	// glfw: terminate, clearing all previously allocated GLFW resources.
+	// ------------------------------------------------------------------
+	glfwTerminate();
+	return 0;
 }
 
+
+
+
+// 2. Now create the same 2 triangles using two different VAOs and VBOs for their data:
+int helloTriangleEx2Main() {
+	// glfw: initialize and configure
+	// ------------------------------
+	if (!glfwInit()) {
+		std::cout << "ERROR: GLFW failed to initialize, TERMINATING" << std::endl;
+		return -1;
+	}
+
+	//Set the custom error callback function
+	//Errors will be printed to the console
+	glfwSetErrorCallback(errorCallback);
+
+	// TARGET = OpenGL 3.3 CORE context
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+#ifdef __APPLE__
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
+#endif
+
+	// glfw window creation
+	// --------------------
+
+	GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+	GLFWvidmode const *mode = glfwGetVideoMode(monitor);
+
+	GLFWwindow *window = glfwCreateWindow(mode->width, mode->height, "LearnOpenGL", monitor, NULL); // creates the window in full-screen on the primary montitor (w/ proper DPI)
+	if (!window) {
+		std::cout << "Failed to create GLFW window" << std::endl;
+		glfwTerminate();
+		return -1;
+	}
+
+	//glfwSetWindowPos(window, 1, 31); // set window top-left corner to be at top-left corner of screen
+
+
+	//So that we can access this object on key callbacks...
+	//glfwSetWindowUserPointer(window, this);
+
+	//Set the custom function that tracks key presses
+	glfwSetKeyCallback(window, keyCallback);
+
+	//Bring the new window to the foreground (not strictly necessary but convenient)
+	glfwMakeContextCurrent(window);
+
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+	// glad: load all OpenGL function pointers
+	// ---------------------------------------
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+		std::cout << "Failed to initialize GLAD" << std::endl;
+		return -1;
+	}
+
+
+	//Intialize GLAD (finds appropriate OpenGL configuration for your system)
+	/*
+	if (!gladLoadGL()) {
+		std::cout << "GLAD init failed" << std::endl;
+		return -1;
+	}
+	*/
+
+
+	std::cout << "OpenGL target version: " << GLVersion.major << "." << GLVersion.minor << "+" << std::endl;
+
+	//Query and print out information about our OpenGL environment
+	queryGLVersion();
+
+
+
+
+
+
+	// build and compile our shader program
+	// opengl must dynamically compile the shader at RUNTIME
+    // ------------------------------------
+    // vertex shader
+    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER); // returns an ID (>0) to reference the created empty shader object of specified type (use this object to maintain the source code strings that define the shader)
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL); // here we actually attach the shader source string to the shader object. we pass 1 string and NULL specifies that each string is null-terminated.
+	// note: opengl copies the strings we pass in, so we can free our copies if we wish now
+    glCompileShader(vertexShader); // actually compile the shader for use by the GPU
+    // check for shader compile errors
+    int success;
+    char infoLog[512];
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success); // NOTE: the "iv" describes the returned parameters (vector of ints)
+    if (!success)
+    {
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
+
+    // fragment shader
+    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+    // check for shader compile errors
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
+        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
+
+    // link shader objects (into a SHADER PROGRAM that we can use for rendering)
+    int shaderProgram = glCreateProgram(); // create an empty SHADER PROGRAM OBJECT and return the ID
+    glAttachShader(shaderProgram, vertexShader); // attach both compiled shaders into the shader program
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram); // link all the attached shaders together in 1 final shader program object (makes a pipeline where outputs of previous shaders get linked to inputs of succesive shaders) - can get linking errors here if the input/output names don't match
+    // check for linking errors
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+    }
+    glDeleteShader(vertexShader); // IMPORTANT: delete the raw shader program objects once they have been successfully linked into a final shader program object - this frees memory and invalidates the name/ID
+    glDeleteShader(fragmentShader);
+
+
+	// my thoughts...
+	// 1. I could have 1 vert array and then pass the first 9 coords to VBO1 and latter 9 coords to VBO2, but in a big application this would be hard to manage and highly coupled (but less overhead)
+	// 2. what I'm gonna do is use 2 seperate vert arrays
+
+
+
+	float verts1[] = {
+		// first triangle
+		-0.9f, -0.5f, 0.0f,  // left 
+		-0.0f, -0.5f, 0.0f,  // right
+		-0.45f, 0.5f, 0.0f   // top
+	};
+
+	float verts2[] = {
+		// second triangle
+		 0.0f, -0.5f, 0.0f,  // left
+		 0.9f, -0.5f, 0.0f,  // right
+		 0.45f, 0.5f, 0.0f   // top 
+	};
+
+	unsigned int VAO1, VAO2, VBO1, VBO2;
+
+	// generate objects...
+	glGenVertexArrays(1, &VAO1);
+	glGenVertexArrays(1, &VAO2);
+	glGenBuffers(1, &VBO1);
+	glGenBuffers(1, &VBO2);
+
+	// FIRST TRIANGLE (VAO1 + VBO1)
+	// bind VAO1 to work with
+	glBindVertexArray(VAO1);
+	
+	// bind VBO1 to work with
+	glBindBuffer(GL_ARRAY_BUFFER, VBO1);
+	// attach verts1 into VBO1
+	glBufferData(GL_ARRAY_BUFFER, sizeof(verts1), verts1, GL_STATIC_DRAW);
+
+	// config the attrib ptrs
+	// attaches the bound VBO1 into the VAO1
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0); // enable attribute 0
+
+	// unbind VBO1 from target
+    glBindBuffer(GL_ARRAY_BUFFER, 0); 
+
+	// unbind VAO1 from target
+    glBindVertexArray(0); // note: this might not be necessary since i'm just binding a new VAO after
+
+
+
+
+	// SECOND TRIANGLE (VAO2 + VBO2)
+	// bind VAO2 to work with
+	glBindVertexArray(VAO2);
+
+	// bind VBO2 to work with
+	glBindBuffer(GL_ARRAY_BUFFER, VBO2);
+	// attach verts2 into VBO2
+	glBufferData(GL_ARRAY_BUFFER, sizeof(verts2), verts2, GL_STATIC_DRAW);
+
+	// config the attrib ptrs
+	// attaches the bound VBO2 into the VAO2
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0); // enable attribute 0
+
+	// unbind VBO2 from target
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// unbind VAO2 from target
+	glBindVertexArray(0);
+
+
+
+
+
+
+
+	while (!glfwWindowShouldClose(window)) {
+
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		glUseProgram(shaderProgram); // here we specify OpenGL to use this specific shader program for future SHADER/RENDERING CALLS
+		// seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+		glBindVertexArray(VAO1); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+		// set the count to 6 since we're drawing 6 vertices now (2 triangles); not 3!
+		glDrawArrays(GL_TRIANGLES, 0, 3); // this function draws primitives using the currently active shader, current attrb config and VBO data (bound within current VAO)
+		// glBindVertexArray(0); // no need to unbind it every time
+		
+		glBindVertexArray(VAO2);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+
+		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+		// -------------------------------------------------------------------------------
+		glfwSwapBuffers(window); // swap the front and back buffers so the stuff we rendered to the back in this frame will get displayed in the front
+		glfwPollEvents();
+	}
+
+	// optional: de-allocate all resources once they've outlived their purpose:
+	// ------------------------------------------------------------------------
+	glDeleteVertexArrays(1, &VAO1);
+	glDeleteBuffers(1, &VBO1);
+
+	glDeleteVertexArrays(1, &VAO2);
+	glDeleteBuffers(1, &VBO2);
+
+	// glfw: terminate, clearing all previously allocated GLFW resources.
+	// ------------------------------------------------------------------
+	glfwTerminate();
+	return 0;
+}
+
+
+
+// 3. Create two shader programs where the second program uses a different fragment shader that outputs the color yellow; draw both triangles again where one outputs the color yellow:
+int helloTriangleEx3Main() {
+	// glfw: initialize and configure
+	// ------------------------------
+	if (!glfwInit()) {
+		std::cout << "ERROR: GLFW failed to initialize, TERMINATING" << std::endl;
+		return -1;
+	}
+
+	//Set the custom error callback function
+	//Errors will be printed to the console
+	glfwSetErrorCallback(errorCallback);
+
+	// TARGET = OpenGL 3.3 CORE context
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+#ifdef __APPLE__
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
+#endif
+
+	// glfw window creation
+	// --------------------
+
+	GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+	GLFWvidmode const *mode = glfwGetVideoMode(monitor);
+
+	GLFWwindow *window = glfwCreateWindow(mode->width, mode->height, "LearnOpenGL", monitor, NULL); // creates the window in full-screen on the primary montitor (w/ proper DPI)
+	if (!window) {
+		std::cout << "Failed to create GLFW window" << std::endl;
+		glfwTerminate();
+		return -1;
+	}
+
+	//glfwSetWindowPos(window, 1, 31); // set window top-left corner to be at top-left corner of screen
+
+
+	//So that we can access this object on key callbacks...
+	//glfwSetWindowUserPointer(window, this);
+
+	//Set the custom function that tracks key presses
+	glfwSetKeyCallback(window, keyCallback);
+
+	//Bring the new window to the foreground (not strictly necessary but convenient)
+	glfwMakeContextCurrent(window);
+
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+	// glad: load all OpenGL function pointers
+	// ---------------------------------------
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+		std::cout << "Failed to initialize GLAD" << std::endl;
+		return -1;
+	}
+
+
+	//Intialize GLAD (finds appropriate OpenGL configuration for your system)
+	/*
+	if (!gladLoadGL()) {
+		std::cout << "GLAD init failed" << std::endl;
+		return -1;
+	}
+	*/
+
+
+	std::cout << "OpenGL target version: " << GLVersion.major << "." << GLVersion.minor << "+" << std::endl;
+
+	//Query and print out information about our OpenGL environment
+	queryGLVersion();
+
+
+
+
+
+
+	// build and compile our shader program
+	// opengl must dynamically compile the shader at RUNTIME
+    // ------------------------------------
+    // vertex shader
+    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER); // returns an ID (>0) to reference the created empty shader object of specified type (use this object to maintain the source code strings that define the shader)
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL); // here we actually attach the shader source string to the shader object. we pass 1 string and NULL specifies that each string is null-terminated.
+	// note: opengl copies the strings we pass in, so we can free our copies if we wish now
+    glCompileShader(vertexShader); // actually compile the shader for use by the GPU
+    // check for shader compile errors
+    int success;
+    char infoLog[512];
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success); // NOTE: the "iv" describes the returned parameters (vector of ints)
+    if (!success)
+    {
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
+
+    // fragment shader (ORANGE)
+    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+    // check for shader compile errors
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
+        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
+
+	// fragment shader (YELLOW)
+	unsigned int fragmentShader2 = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader2, 1, &fragmentShaderSourceEx3, NULL);
+	glCompileShader(fragmentShader2);
+	// check for shader compile errors
+	glGetShaderiv(fragmentShader2, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(fragmentShader2, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+	}
+
+    // link shader objects (into a SHADER PROGRAM that we can use for rendering)
+    int shaderProgram = glCreateProgram(); // create an empty SHADER PROGRAM OBJECT and return the ID
+    glAttachShader(shaderProgram, vertexShader); // attach both compiled shaders into the shader program
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram); // link all the attached shaders together in 1 final shader program object (makes a pipeline where outputs of previous shaders get linked to inputs of succesive shaders) - can get linking errors here if the input/output names don't match
+    // check for linking errors
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+    }
+    //glDeleteShader(vertexShader); // IMPORTANT: delete the raw shader program objects once they have been successfully linked into a final shader program object - this frees memory and invalidates the name/ID
+    glDeleteShader(fragmentShader);
+
+
+
+	// link shader objects (into a SHADER PROGRAM that we can use for rendering)
+	int shaderProgram2 = glCreateProgram(); // create an empty SHADER PROGRAM OBJECT and return the ID
+	glAttachShader(shaderProgram2, vertexShader); // attach both compiled shaders into the shader program
+	glAttachShader(shaderProgram2, fragmentShader2);
+	glLinkProgram(shaderProgram2); // link all the attached shaders together in 1 final shader program object (makes a pipeline where outputs of previous shaders get linked to inputs of succesive shaders) - can get linking errors here if the input/output names don't match
+	// check for linking errors
+	glGetProgramiv(shaderProgram2, GL_LINK_STATUS, &success);
+	if (!success) {
+		glGetProgramInfoLog(shaderProgram2, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+	}
+	glDeleteShader(vertexShader); // IMPORTANT: delete the raw shader program objects once they have been successfully linked into a final shader program object - this frees memory and invalidates the name/ID
+	glDeleteShader(fragmentShader2);
+
+
+	// my thoughts...
+	// 1. I could have 1 vert array and then pass the first 9 coords to VBO1 and latter 9 coords to VBO2, but in a big application this would be hard to manage and highly coupled (but less overhead)
+	// 2. what I'm gonna do is use 2 seperate vert arrays
+
+
+
+	float verts1[] = {
+		// first triangle
+		-0.9f, -0.5f, 0.0f,  // left 
+		-0.0f, -0.5f, 0.0f,  // right
+		-0.45f, 0.5f, 0.0f   // top
+	};
+
+	float verts2[] = {
+		// second triangle
+		 0.0f, -0.5f, 0.0f,  // left
+		 0.9f, -0.5f, 0.0f,  // right
+		 0.45f, 0.5f, 0.0f   // top 
+	};
+
+	unsigned int VAO1, VAO2, VBO1, VBO2;
+
+	// generate objects...
+	glGenVertexArrays(1, &VAO1);
+	glGenVertexArrays(1, &VAO2);
+	glGenBuffers(1, &VBO1);
+	glGenBuffers(1, &VBO2);
+
+	// FIRST TRIANGLE (VAO1 + VBO1)
+	// bind VAO1 to work with
+	glBindVertexArray(VAO1);
+	
+	// bind VBO1 to work with
+	glBindBuffer(GL_ARRAY_BUFFER, VBO1);
+	// attach verts1 into VBO1
+	glBufferData(GL_ARRAY_BUFFER, sizeof(verts1), verts1, GL_STATIC_DRAW);
+
+	// config the attrib ptrs
+	// attaches the bound VBO1 into the VAO1
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0); // enable attribute 0
+
+	// unbind VBO1 from target
+    glBindBuffer(GL_ARRAY_BUFFER, 0); 
+
+	// unbind VAO1 from target
+    glBindVertexArray(0); // note: this might not be necessary since i'm just binding a new VAO after
+
+
+
+
+	// SECOND TRIANGLE (VAO2 + VBO2)
+	// bind VAO2 to work with
+	glBindVertexArray(VAO2);
+
+	// bind VBO2 to work with
+	glBindBuffer(GL_ARRAY_BUFFER, VBO2);
+	// attach verts2 into VBO2
+	glBufferData(GL_ARRAY_BUFFER, sizeof(verts2), verts2, GL_STATIC_DRAW);
+
+	// config the attrib ptrs
+	// attaches the bound VBO2 into the VAO2
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0); // enable attribute 0
+
+	// unbind VBO2 from target
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// unbind VAO2 from target
+	glBindVertexArray(0);
+
+
+
+
+
+
+
+	while (!glfwWindowShouldClose(window)) {
+
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		glUseProgram(shaderProgram); // here we specify OpenGL to use this specific shader program for future SHADER/RENDERING CALLS
+		// seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+		glBindVertexArray(VAO1); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+		// set the count to 6 since we're drawing 6 vertices now (2 triangles); not 3!
+		glDrawArrays(GL_TRIANGLES, 0, 3); // this function draws primitives using the currently active shader, current attrb config and VBO data (bound within current VAO)
+		// glBindVertexArray(0); // no need to unbind it every time
+
+		glUseProgram(shaderProgram2);
+		
+		glBindVertexArray(VAO2);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+
+		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+		// -------------------------------------------------------------------------------
+		glfwSwapBuffers(window); // swap the front and back buffers so the stuff we rendered to the back in this frame will get displayed in the front
+		glfwPollEvents();
+	}
+
+	// optional: de-allocate all resources once they've outlived their purpose:
+	// ------------------------------------------------------------------------
+	glDeleteVertexArrays(1, &VAO1);
+	glDeleteBuffers(1, &VBO1);
+
+	glDeleteVertexArrays(1, &VAO2);
+	glDeleteBuffers(1, &VBO2);
+
+	// glfw: terminate, clearing all previously allocated GLFW resources.
+	// ------------------------------------------------------------------
+	glfwTerminate();
+	return 0;
+}
 
 
 
@@ -558,6 +1267,15 @@ ELEMENT BUFFER OBJECT (EBO)...
 - the current-bound EBO while a VAO is bound gets stores as the VAO's EBO, so all we need to do is bind to proper VAO to auto-bind its EBO!
 
 - PROCESS... 1. config VBO, 2. config EBO, 3. config VAO ??
+
+
+???
+1. generate objects
+2. bind VAO
+3. bind VBOs / EBOs / attribptrs
+4. unbind VBOs
+5. unbind VAO
+6. unbind EBO (optional)
 
 
 - DATA STORAGE...
